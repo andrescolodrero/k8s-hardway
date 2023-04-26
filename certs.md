@@ -258,7 +258,7 @@ IN Order to access the API Server, we need to provide all IPs and hostnames to t
 IP within k8s itself, private ip of controllers: Access the API from all controllers NODES / Add load balancer too to validat ethe cert in that case / Localhost to access locally / internal kubernetes (used from inside k8s cluster too)
 CERT_HOSTNAME=10.32.0.1,172.31.28.168,e03b0619b61c.mylabserver.com,172.31.27.174,e03b0619b62c.mylabserver.com,172.31.31.17,e03b0619b65c.mylabserver.com,127.0.0.1,localhost,kubernetes.default
 
-
+```
 cat > kubernetes-csr.json <<EOF
 {
   "CN": "kubernetes",
@@ -286,4 +286,49 @@ cfssl gencert \
   kubernetes-csr.json | cfssljson -bare kubernetes
 
 }
+```
+## The Service Account Key Pair
+
+The Kubernetes Controller Manager leverages a key pair to generate and sign service account tokens as described in the [managing service accounts](https://kubernetes.io/docs/admin/service-accounts-admin/) documentation.
+```
+{
+
+cat > service-account-csr.json <<EOF
+{
+  "CN": "service-accounts",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "IS",
+      "L": "Reykjavik",
+      "O": "Kubernetes",
+      "OU": "andrescolodrero"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  service-account-csr.json | cfssljson -bare service-account
+
+}
+```
+
+## Distribute the Client and Server Certificates
+
+Copy certificayes over the servers
+
+Controllers:
+scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem service-account-key.pem service-account.pem  -- user/server
+
+Workers:
+scp ca.pem e03b0619b64c.mylabserver.com-key.pem e03b0619b64c.mylabserver.com.pem
+
 
