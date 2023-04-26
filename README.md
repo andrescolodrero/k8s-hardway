@@ -11,3 +11,6 @@ Just learning the hard way...
 
 3. Install CFSSL and KUBECTL
 4. Create CA and certs
+
+![image](https://user-images.githubusercontent.com/4639270/234585631-6221ae8d-7ede-489a-b7b6-ff5fabe68a24.png)
+
