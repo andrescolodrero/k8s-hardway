@@ -75,12 +75,23 @@ cfssl gencert \
   ```
   
   # Kubelet Client Cert
+  We need to generate hostnames certs. IN this example i have 2 workers and im assing them a variable:
+  
+  WORKER0_HOST=e03b0619b63c.mylabserver.com
+  WORKER0_IP=172.31.17.23
+  WORKER1_HOST=e03b0619b64c.mylabserver.com
+  WORKER1_IP=172.31.31.246
+  
+  CONTROLLER0_HOST=
+  CONTROLLER0_IP=
+  CONTROLLER1_HOST=
+  CONTROLLER1_IP=
+  
   
   ```
-  for instance in worker-0 worker-1 worker-2; do
-cat > ${instance}-csr.json <<EOF
+cat > ${WORKER0-HOST}-csr.json <<EOF
 {
-  "CN": "system:node:${instance}",
+  "CN": "system:node:${WORKER0-HOST}",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -96,18 +107,41 @@ cat > ${instance}-csr.json <<EOF
 }
 EOF
 
-EXTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].accessConfigs[0].natIP)')
+cat > ${WORKER1-HOST}-csr.json <<EOF
+{
+  "CN": "system:node:${WORKER1-HOST}",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "IS",
+      "L": "Iceland",
+      "O": "system:nodes",
+      "OU": "andrescolodrero"
+    }
+  ]
+}
+EOF
 
-INTERNAL_IP=$(gcloud compute instances describe ${instance} \
-  --format 'value(networkInterfaces[0].networkIP)')
+
 
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=${instance},${EXTERNAL_IP},${INTERNAL_IP} \
+  -hostname=${WORKER0_IP},${WORKER0_HOST} \
   -profile=kubernetes \
-  ${instance}-csr.json | cfssljson -bare ${instance}
-done
+  ${WORKER0_HOST}-csr.json | cfssljson -bare ${WORKER0_HOST}
+
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname=${WORKER1_IP},${WORKER1_HOST} \
+  -profile=kubernetes \
+  ${WORKER1_HOST}-csr.json | cfssljson -bare ${WORKER1_HOST}
+
   ```
