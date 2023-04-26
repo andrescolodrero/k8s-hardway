@@ -76,7 +76,7 @@ cfssl gencert \
   
   # Kubelet Client Cert
   We need to generate hostnames certs. IN this example i have 2 workers and im assing them a variable:
-  
+  ```
   WORKER0_HOST=e03b0619b63c.mylabserver.com
   WORKER0_IP=172.31.17.23
   WORKER1_HOST=e03b0619b64c.mylabserver.com
@@ -86,12 +86,13 @@ cfssl gencert \
   CONTROLLER0_IP=
   CONTROLLER1_HOST=
   CONTROLLER1_IP=
-  
+   ```
+   And then create the client certs for workers
   
   ```
-cat > ${WORKER0-HOST}-csr.json <<EOF
+cat > ${WORKER0_HOST}-csr.json <<EOF
 {
-  "CN": "system:node:${WORKER0-HOST}",
+  "CN": "system:node:${WORKER0_HOST}",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -107,9 +108,9 @@ cat > ${WORKER0-HOST}-csr.json <<EOF
 }
 EOF
 
-cat > ${WORKER1-HOST}-csr.json <<EOF
+cat > ${WORKER1_HOST}-csr.json <<EOF
 {
-  "CN": "system:node:${WORKER1-HOST}",
+  "CN": "system:node:${WORKER1_HOST}",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -145,3 +146,71 @@ cfssl gencert \
   ${WORKER1_HOST}-csr.json | cfssljson -bare ${WORKER1_HOST}
 
   ```
+  # Controller Manager Certs
+  Generate the `kube-controller-manager` client certificate and private key:
+
+```
+{
+
+cat > kube-controller-manager-csr.json <<EOF
+{
+  "CN": "system:kube-controller-manager",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "IS",
+      "L": "Reykjavik",
+      "O": "system:kube-controller-manager",
+      "OU": "andrescolodrero"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
+
+}
+```
+
+### The Kube Proxy Client Certificate
+
+Generate the `kube-proxy` client certificate and private key:
+
+```
+{
+
+cat > kube-proxy-csr.json <<EOF
+{
+  "CN": "system:kube-proxy",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "IS",
+      "L": "Reykjavik",
+      "O": "system:node-proxier",
+      "OU": "andrescolodrero"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+}
+```
