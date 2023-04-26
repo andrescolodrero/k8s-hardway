@@ -1,4 +1,4 @@
-# Certificates
+# Certificate AUthority
 
 ```
   {
@@ -256,7 +256,7 @@ cfssl gencert \
 IN Order to access the API Server, we need to provide all IPs and hostnames to this cert
 
 IP within k8s itself, private ip of controllers: Access the API from all controllers NODES / Add load balancer too to validat ethe cert in that case / Localhost to access locally / internal kubernetes (used from inside k8s cluster too)
-CERT_HOSTNAME=10.32.0.1,172.31.28.168,e03b0619b61c.mylabserver.com,172.31.27.174,e03b0619b62c.mylabserver.com,172.31.31.17,e03b0619b65c.mylabserver.com,127.0.0.1,localhost,kubernetes.default
+CERT_HOSTNAME=10.32.0.1,172.31.28.168,e03b0619b61c.mylabserver.com,172.31.27.174,e03b0619b62c.mylabserver.com,172.31.27.46,e03b0619b66c.mylabserver.com,127.0.0.1,localhost,kubernetes.default
 
 ```
 cat > kubernetes-csr.json <<EOF
