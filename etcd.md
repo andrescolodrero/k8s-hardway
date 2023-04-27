@@ -16,6 +16,10 @@ tar -xvf etcd-v3.4.25-linux-amd64.tar.gz
 sudo mv etcd-v3.4.25-linux-amd64/etcd* /usr/local/bin/
 mkdir /etc/etcd
 mkdir /var/lib/etcd
+
+Move the certs:
+mv kubernetes.pem kubernetes-key.pem ca.pem /etc/etcd
+
 ON CONTROLLER1:
 
 cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd
