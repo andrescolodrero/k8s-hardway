@@ -227,3 +227,53 @@ curl -H "Host: kubernetes.default.svc.cluster.local" -i http://127.0.0.1/healthz
 
 # You should receive a 200 OK response.
 ```
+# RBAC Rules
+Create roles and permissions to users.
+When we install K8s from scratch, we need to be sure the Server API can talk to kubeletes on th eworker nodes and perform tasks (assigning pods, scale, etc).
+
+For that we need a clusterRole with permission and assign to "Kubernetes" user with a ClusterRole Binding
+
+Now, it should be enought to run the commands from KUBECTL once we have the workers ready.
+Create system:kube-apiserver-to-kubelet
+```
+cat <<EOF | kubectl apply --kubeconfig admin.kubeconfig -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: system:kube-apiserver-to-kubelet
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes/proxy
+      - nodes/stats
+      - nodes/log
+      - nodes/spec
+      - nodes/metrics
+    verbs:
+      - "*"
+EOF
+```
+
+Bind the system:kube-apiserver-to-kubelet ClusterRole to the kubernetes user:
+```
+cat <<EOF | kubectl apply --kubeconfig admin.kubeconfig -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:kube-apiserver
+  namespace: ""
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:kube-apiserver-to-kubelet
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: kubernetes
+EOF
+```
