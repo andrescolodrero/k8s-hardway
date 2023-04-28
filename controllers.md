@@ -142,7 +142,7 @@ sudo mv kube-scheduler.kubeconfig /var/lib/kubernetes/
 Create the kube-scheduler.yaml configuration file:
 ```
 cat <<EOF | sudo tee /etc/kubernetes/config/kube-scheduler.yaml
-apiVersion: kubescheduler.config.k8s.io/v1beta1
+apiVersion: kubescheduler.config.k8s.io/v1beta2
 kind: KubeSchedulerConfiguration
 clientConnection:
   kubeconfig: "/var/lib/kubernetes/kube-scheduler.kubeconfig"
@@ -168,3 +168,31 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 ```
+# Testing the deployment
+
+Start all services: kube-apiserver kube-controller-manager and kube-scheduler
+
+oot@e03b0619b61c:/home/cloud_user# kubectl get componentstatus --kubeconfig admin.kubeconfig
+Warning: v1 ComponentStatus is deprecated in v1.19+
+NAME                 STATUS    MESSAGE             ERROR
+scheduler            Healthy   ok                  
+controller-manager   Healthy   ok   
+etcd-1               Healthy   {"health":"true"}   
+etcd-0               Healthy   {"health":"true"}   
+
+# Enable HTTP Health Check
+The load balancer can perform health checks to know that all the nodes are working correctly. On Kelsey Hightower "Kubernetes the hard way", it uses a simple GCP load balacner that works only with HTTP.
+
+In our case, we have a server dedicated to be the load balancer and we will setup and NGINX to load balance the cluser.
+Each controller will have also a dedicated NGINX that wiill proxy requests over HTTP (it is not necesary for important to understand and learn more in this course).
+
+If we tried to query healthz service from the local controller
+
+oot@e03b0619b61c:/home/cloud_user# curl -k https://localhost:6443/healthz
+ok
+root@e03b0619b61c:/home/cloud_user# curl -k http://localhost:6443/healthz
+Client sent an HTTP request to an HTTPS server.
+
+INstall NGINX
+sudo apt-get install -y nginx
+
