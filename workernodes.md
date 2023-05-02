@@ -5,7 +5,7 @@ Worker nodes contains:
 2. Kube-proxy: Manage iptables rules for the node and provide VNet 
 3. Runtime: Download and run containers: docker, containerd, etc.
 
-# You can install the worker binaries like so. Run these commands on both worker nodes:
+Install the worker binaries like so. Run these commands on both worker nodes:
 ```
 
 sudo apt-get -y install socat conntrack ipset
