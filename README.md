@@ -1,12 +1,12 @@
 # k8s-hardway
-Just learning the hard way...
+Just learning the hard way... on Azure.
+
+The intention is to create a K8S cluster from scratch, running commands manually to understand the whole deployments.
 
 # Steps
 1. Provision VMs 
-  worker1=172.31.17.23
-  worker2=172.31.31.246
-  controller1=172.31.28.168
-  controller2=172.31.27.174
+  Machines are provisioned on Azure, all of them in same resource group and VNET
+  
 
 
 3. Install CFSSL and KUBECTL
