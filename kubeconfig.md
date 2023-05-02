@@ -4,11 +4,11 @@ We will create  kubeconfigs, which enable Kubernetes clients to locate and authe
 We will need kubeconfigs for controller manager, kubelet, kube-proxy, and scheduler clients and the admin user.
 
 K8s address: We will take the one from our LoadBalancer Server
-KUBERNETES_ADDRESS=172.31.27.46
+KUBERNETES_ADDRESS=10.0.0.6
 
 For the workers:
 
-for instance in e03b0619b63c.mylabserver.com e03b0619b64c.mylabserver.com; do
+for instance in controller1 controller2; do
 kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
     --embed-certs=true \
