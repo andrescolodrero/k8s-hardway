@@ -26,19 +26,19 @@ ON CONTROLLER1:
 ```
 cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd
 ETCD_NAME=controller1
-INTERNAL_IP=(private ip)
+INTERNAL_IP=NTERNAL_IP=10.0.0.4
 INITIAL_CLUSTER= (provide the initial server for now)
 
-INITIAL_CLUSTER=controller1=https://172.31.28.168:2380,controller2=https://172.31.27.174:2380
+INITIAL_CLUSTER=controller1=https://10.0.0.4:2380,controller2=https://10.0.0.5:2380
 ```
 ON CONTROLLER2:
 ```
 cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd
 ETCD_NAME=controller2
-INTERNAL_IP=(private ip)
+INTERNAL_IP=10.0.0.5
 INITIAL_CLUSTER= (provide the initial server for now)
 
-INITIAL_CLUSTER=controller1=https://172.31.28.168:2380,controller2=https://172.31.27.174:2380
+INITIAL_CLUSTER=controller1=https://10.0.0.4:2380,controller2=https://10.0.0.5:2380
 ```
 ## Create Service
 ```
@@ -93,8 +93,8 @@ sudo ETCDCTL_API=3 etcdctl member list \
   --key=/etc/etcd/kubernetes-key.pem
 ```  
   result:
-  6eefc175575366d, started, controller1, https://172.31.28.168:2380, https://172.31.28.168:2379, false
-fdc14688fa59dd0e, started, controller2, https://172.31.27.174:2380, https://172.31.27.174:2379, false
+3e104292b96789dc, started, controller2, https://10.0.0.5:2380, https://10.0.0.5:2379, false
+78ea405b479ca574, started, controller1, https://10.0.0.4:2380, https://10.0.0.4:2379, false
 root@e03b0619b61c:/home/cloud_user# 
 
 Possible to send/retrieve data.
