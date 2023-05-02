@@ -8,7 +8,7 @@ KUBERNETES_ADDRESS=10.0.0.6
 
 For the workers:
 
-for instance in controller1 controller2; do
+for instance in worker1 worker22; do
 kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.pem \
     --embed-certs=true \
