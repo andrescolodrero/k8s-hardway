@@ -45,7 +45,7 @@ sudo tar -xvf containerd-1.6.20-linux-amd64.tar.gz -C /
 Containerd is the main runtime for running containers.
 mkdir -p /etc/containerd
 # Create the containerd config.toml:
-
+```
 cat << EOF | sudo tee /etc/containerd/config.toml
 [plugins]
   [plugins.cri.containerd]
@@ -59,9 +59,9 @@ cat << EOF | sudo tee /etc/containerd/config.toml
       runtime_engine = "/usr/local/bin/runsc"
       runtime_root = "/run/containerd/runsc"
 EOF
-
+```
 # Create the containerd unit file:
-
+```
 cat << EOF | sudo tee /etc/systemd/system/containerd.service
 [Unit]
 Description=containerd container runtime
@@ -83,7 +83,7 @@ LimitCORE=infinity
 [Install]
 WantedBy=multi-user.target
 EOF
-
+```
 # Configure Kubelet
 K8s worker nodes agents
 
@@ -92,11 +92,125 @@ set a HOSTNAME environment variable that will be used to generate your config fi
 HOSTNAME=$(hostname)
 
 # use the certs and config files
-
+```
 sudo mv ${HOSTNAME}-key.pem ${HOSTNAME}.pem /var/lib/kubelet/
 
 sudo mv ${HOSTNAME}.kubeconfig /var/lib/kubelet/kubeconfig
 
 sudo mv ca.pem /var/lib/kubernetes/
+```
+# Create the kubelet config file:
+```
+cat << EOF | sudo tee /var/lib/kubelet/kubelet-config.yaml
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    enabled: true
+  x509:
+    clientCAFile: "/var/lib/kubernetes/ca.pem"
+authorization:
+  mode: Webhook
+clusterDomain: "cluster.local"
+clusterDNS:
+  - "10.32.0.10"
+runtimeRequestTimeout: "15m"
+tlsCertFile: "/var/lib/kubelet/${HOSTNAME}.pem"
+tlsPrivateKeyFile: "/var/lib/kubelet/${HOSTNAME}-key.pem"
+EOF
+```
+# Create the kubelet unit file:
+Kubelets wont autodiscover, so we add hostname-override. Also we will allow-privileged because of the networking plugin will need some admin access.
+```
+cat << EOF | sudo tee /etc/systemd/system/kubelet.service
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/kubernetes/kubernetes
+After=containerd.service
+Requires=containerd.service
 
+[Service]
+ExecStart=/usr/local/bin/kubelet \\
+  --config=/var/lib/kubelet/kubelet-config.yaml \\
+  --container-runtime=remote \\
+  --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \\
+  --image-pull-progress-deadline=2m \\
+  --kubeconfig=/var/lib/kubelet/kubeconfig \\
+  --network-plugin=cni \\
+  --register-node=true \\
+  --v=2 \\
+  --hostname-override=${HOSTNAME} \\
+  --allow-privileged=true
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+# kube proxy
+ Kube-proxy is an important component of each Kubernetes worker node. It is responsible for providing network routing to support Kubernetes networking components.
+ 
+ sudo mv kube-proxy.kubeconfig /var/lib/kube-proxy/kubeconfig
+
+# Create the kube-proxy config file:
+```
+cat << EOF | sudo tee /var/lib/kube-proxy/kube-proxy-config.yaml
+kind: KubeProxyConfiguration
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+clientConnection:
+  kubeconfig: "/var/lib/kube-proxy/kubeconfig"
+mode: "iptables"
+clusterCIDR: "10.200.0.0/16"
+EOF
+```
+# Create the kube-proxy unit file:
+```
+cat << EOF | sudo tee /etc/systemd/system/kube-proxy.service
+[Unit]
+Description=Kubernetes Kube Proxy
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+ExecStart=/usr/local/bin/kube-proxy \\
+  --config=/var/lib/kube-proxy/kube-proxy-config.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+# Start Services
+```
+sudo systemctl daemon-reload
+
+sudo systemctl enable containerd kubelet kube-proxy
+
+sudo systemctl start containerd kubelet kube-proxy
+```
+
+# Check the status of each service to make sure they are all active (running) on both worker nodes:
+
+sudo systemctl status containerd kubelet kube-proxy
+
+# Now you are ready to start up the worker node services! Run these:
+
+sudo systemctl daemon-reload
+
+sudo systemctl enable containerd kubelet kube-proxy
+
+sudo systemctl start containerd kubelet kube-proxy
+
+# Check the status of each service to make sure they are all active (running) on both worker nodes:
+
+sudo systemctl status containerd kubelet kube-proxy
+
+# Finally, verify that both workers have registered themselves with the cluster. Log in to one of your control nodes and run this:
+
+kubectl get nodes
 
