@@ -6,6 +6,7 @@ Worker nodes contains:
 3. Runtime: Download and run containers: docker, containerd, etc.
 
 # You can install the worker binaries like so. Run these commands on both worker nodes:
+```
 
 sudo apt-get -y install socat conntrack ipset
 
@@ -38,6 +39,7 @@ sudo tar -xvf crictl-v1.27.0-linux-arm.tar.gz  -C /usr/local/bin/
 sudo tar -xvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
 
 sudo tar -xvf containerd-1.6.20-linux-amd64.tar.gz -C /
+```
 
 # Configure Containerd
 Containerd is the main runtime for running containers.
