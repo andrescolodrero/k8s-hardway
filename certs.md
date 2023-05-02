@@ -1,3 +1,14 @@
+# Install 
+The cfssl and cfssljson
+
+wget -q --show-progress --https-only --timestamping \
+  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssl \
+  https://storage.googleapis.com/kubernetes-the-hard-way/cfssl/1.4.1/linux/cfssljson
+  
+  chmod +x cfssl cfssljson
+sudo mv cfssl cfssljson /usr/local/bin/
+
+
 # Certificate AUthority
 
 ```
@@ -258,6 +269,9 @@ IN Order to access the API Server, we need to provide all IPs and hostnames to t
 IP within k8s itself, private ip of controllers: Access the API from all controllers NODES / Add load balancer too to validat ethe cert in that case / Localhost to access locally / internal kubernetes (used from inside k8s cluster too)
 ```
 CERT_HOSTNAME=10.32.0.1,172.31.23.20,e03b0619b61c.mylabserver.com,172.31.26.41,e03b0619b62c.mylabserver.com,172.31.27.46,e03b0619b66c.mylabserver.com,127.0.0.1,localhost,kubernetes.default
+
+(for azure)
+CERT_HOSTNAME=10.32.0.1,controller1,10.0.0.4,controller2,10.0.0.5,loadbalancer,10.0.0.6,andreslb.northeurope.cloudapp.azure.com,20.223.183.180,127.0.0.1,localhost,kubernetes.default
 
 cat > kubernetes-csr.json <<EOF
 {
