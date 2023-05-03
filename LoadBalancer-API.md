@@ -5,6 +5,7 @@ NGINX LB to manage traffic from remote kubectl to our controllers
 ON the server label as "Load Balancer"
 
 apt-get install nginx
+
 systemctl enable nginx
 
 and create the config files:
