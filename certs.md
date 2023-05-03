@@ -88,10 +88,10 @@ cfssl gencert \
   # Kubelet Client Cert
   We need to generate hostnames certs. IN this example i have 2 workers and im assing them a variable:
   ```
-  WORKER0_HOST=e03b0619b63c.mylabserver.com
-  WORKER0_IP=172.31.17.23
-  WORKER1_HOST=e03b0619b64c.mylabserver.com
-  WORKER1_IP=172.31.31.246
+  WORKER0_HOST=worker1.internal.cloudapp.net
+  WORKER0_IP=10.0.0.10
+  WORKER1_HOST=worker2.internal.cloudapp.net
+  WORKER1_IP=10.0.0.9
   
   CONTROLLER0_HOST=
   CONTROLLER0_IP=
