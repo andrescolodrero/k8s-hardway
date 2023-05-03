@@ -26,7 +26,7 @@ Run on all controllers:
 ```
   sudo mkdir -p /var/lib/kubernetes/
 
-  sudo mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
+  sudo cp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem \
     encryption-config.yaml /var/lib/kubernetes/
 ```
@@ -34,14 +34,14 @@ In each controller, set:
 
 
 On Controller 0:
-INTERNAL_IP=(ip 0)
-CONTROLLER0_IP=(ip 0)
-CONTROLLER1_IP=(ip 1)
+INTERNAL_IP=10.0.0.4
+CONTROLLER0_IP=10.0.0.4
+CONTROLLER1_IP=10.0.0.5
 
 on Controller 1:
-INTERNAL_IP=(ip 1)
-CONTROLLER0_IP=(ip 0)
-CONTROLLER1_IP=(ip 1)
+INTERNAL_IP=10.0.0.5
+CONTROLLER0_IP=10.0.0.4
+CONTROLLER1_IP=10.0.0.5
 
 And now, create the systemd unit for kube-api server
 
@@ -103,7 +103,7 @@ TO run on both servers:
 
 From /home/cloud_user
 ```
-sudo mv kube-controller-manager.kubeconfig /var/lib/kubernetes/
+sudo cp kube-controller-manager.kubeconfig /var/lib/kubernetes/
 ```
 Then, create the systemd unit for the kube-controller-manager:
 ```
@@ -137,7 +137,7 @@ EOF
 We will need first the kubeconfig:
 
 ```
-sudo mv kube-scheduler.kubeconfig /var/lib/kubernetes/
+sudo cp kube-scheduler.kubeconfig /var/lib/kubernetes/
 ```
 Create the kube-scheduler.yaml configuration file:
 ```
