@@ -35,7 +35,7 @@ mkdir containerd
   chmod +x kubectl kube-proxy kubelet runc runsc
   sudo mv kubectl kube-proxy kubelet runc runsc /usr/local/bin/
   sudo tar -xvf crictl-v1.26.1-linux-amd64.tar.gz -C /usr/local/bin/
-  sudo tar -xvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
+  tar -xvf crictl-v1.26.1-linux-amd64.tar.gz -C /opt/cni/bintar -xvf 
   sudo tar -xvf containerd-1.7.0-linux-amd64.tar.gz -C containerd
   sudo mv containerd/bin/* /bin/
 ```
@@ -98,7 +98,7 @@ cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
     "ipam": {
         "type": "host-local",
         "ranges": [
-          [{"subnet": "10.240.$(hostname -s | cut -f2 -d '-').0/24"}]
+          [{"subnet": "10.240.0.0/24"}]
         ],
         "routes": [{"dst": "0.0.0.0/0"}]
     }
@@ -114,11 +114,11 @@ HOSTNAME=$(hostname)
 
 # use the certs and config files
 ```
-sudo mv ${HOSTNAME}-key.pem ${HOSTNAME}.pem /var/lib/kubelet/
+sudo cp ${HOSTNAME}-key.pem ${HOSTNAME}.pem /var/lib/kubelet/
 
-sudo mv ${HOSTNAME}.kubeconfig /var/lib/kubelet/kubeconfig
+sudo cp ${HOSTNAME}.kubeconfig /var/lib/kubelet/kubeconfig
 
-sudo mv ca.pem /var/lib/kubernetes/
+sudo cp ca.pem /var/lib/kubernetes/
 ```
 # Create the kubelet config file:
 ```
@@ -175,7 +175,7 @@ EOF
 # kube proxy
  Kube-proxy is an important component of each Kubernetes worker node. It is responsible for providing network routing to support Kubernetes networking components.
  
- sudo mv kube-proxy.kubeconfig /var/lib/kube-proxy/kubeconfig
+ sudo cp kube-proxy.kubeconfig /var/lib/kube-proxy/kubeconfig
 
 # Create the kube-proxy config file:
 ```
