@@ -11,14 +11,14 @@ Install the worker binaries like so. Run these commands on both worker nodes:
 sudo apt-get -y install socat conntrack ipset
 
 wget -q --show-progress --https-only --timestamping \
-  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.27.0/crictl-v1.27.0-linux-arm.tar.gz \
-  https://storage.googleapis.com/kubernetes-the-hard-way/runsc \
-  https://github.com/opencontainers/runc/releases/download/v1.1.7/runc.amd64 \
+  https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.26.1/crictl-v1.26.1-linux-amd64.tar.gz \
+  https://storage.googleapis.com/gvisor/releases/nightly/latest/runsc \
+  https://github.com/opencontainers/runc/releases/download/v1.1.5/runc.amd64 \
   https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz \
-  https://github.com/containerd/containerd/releases/download/v1.6.20/containerd-1.6.20-linux-amd64.tar.gz \
-  https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl \
-  https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kube-proxy \
-  https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubelet
+  https://github.com/containerd/containerd/releases/download/v1.7.0/containerd-1.7.0-linux-amd64.tar.gz \
+  https://storage.googleapis.com/kubernetes-release/release/v1.26.3/bin/linux/amd64/kubectl \
+  https://storage.googleapis.com/kubernetes-release/release/v1.26.3/bin/linux/amd64/kube-proxy \
+  https://storage.googleapis.com/kubernetes-release/release/v1.26.3/bin/linux/amd64/kubelet
 
 sudo mkdir -p \
   /etc/cni/net.d \
@@ -30,15 +30,14 @@ sudo mkdir -p \
 
 chmod +x kubectl kube-proxy kubelet runc.amd64 runsc
 
-sudo mv runc.amd64 runc
-
-sudo mv kubectl kube-proxy kubelet runc runsc /usr/local/bin/
-
-sudo tar -xvf crictl-v1.27.0-linux-arm.tar.gz  -C /usr/local/bin/
-
-sudo tar -xvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
-
-sudo tar -xvf containerd-1.6.20-linux-amd64.tar.gz -C /
+mkdir containerd
+  sudo mv runc.amd64 runc
+  chmod +x kubectl kube-proxy kubelet runc runsc
+  sudo mv kubectl kube-proxy kubelet runc runsc /usr/local/bin/
+  sudo tar -xvf crictl-v1.26.1-linux-amd64.tar.gz -C /usr/local/bin/
+  sudo tar -xvf cni-plugins-linux-amd64-v1.2.0.tgz -C /opt/cni/bin/
+  sudo tar -xvf containerd-1.7.0-linux-amd64.tar.gz -C containerd
+  sudo mv containerd/bin/* /bin/
 ```
 
 # Configure Containerd
@@ -82,6 +81,28 @@ LimitCORE=infinity
 
 [Install]
 WantedBy=multi-user.target
+EOF
+```
+
+# COnfigure CNI Networking
+Lets take a subnet by hand
+```
+cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
+{
+    "cniVersion": "0.3.1",
+    "name": "bridge",
+    "type": "bridge",
+    "bridge": "cnio0",
+    "isGateway": true,
+    "ipMasq": true,
+    "ipam": {
+        "type": "host-local",
+        "ranges": [
+          [{"subnet": "10.240.$(hostname -s | cut -f2 -d '-').0/24"}]
+        ],
+        "routes": [{"dst": "0.0.0.0/0"}]
+    }
+}
 EOF
 ```
 # Configure Kubelet
