@@ -89,9 +89,9 @@ cfssl gencert \
   We need to generate hostnames certs. IN this example i have 2 workers and im assing them a variable:
   ```
   WORKER0_HOST=worker1.internal.cloudapp.net
-  WORKER0_IP=10.0.0.10
+  WORKER0_IP=10.0.0.13
   WORKER1_HOST=worker2.internal.cloudapp.net
-  WORKER1_IP=10.0.0.9
+  WORKER1_IP=10.0.0.12
   
   CONTROLLER0_HOST=
   CONTROLLER0_IP=
